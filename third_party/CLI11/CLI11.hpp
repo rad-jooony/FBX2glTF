@@ -1159,12 +1159,9 @@ struct ExistingFileValidator : public Validator {
     ExistingFileValidator() {
         tname = "FILE";
         func = [](const std::string &filename) {
-            struct stat buffer;
-            bool exist = stat(filename.c_str(), &buffer) == 0;
-            bool is_dir = (buffer.st_mode & S_IFDIR) != 0;
-            if(!exist) {
+            if (!boost::filesystem::exists(filename)) {
                 return "File does not exist: " + filename;
-            } else if(is_dir) {
+            } else if (boost::filesystem::is_directory(filename)) {
                 return "File is actually a directory: " + filename;
             }
             return std::string();
