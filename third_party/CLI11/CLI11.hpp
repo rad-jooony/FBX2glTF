@@ -1161,7 +1161,7 @@ struct ExistingFileValidator : public Validator {
         func = [](const std::string &filename) {
             if (!boost::filesystem::exists(filename)) {
                 return "File does not exist: " + filename;
-            } else if (boost::filesystem::is_directory(filename)) {
+            } else if (boost::filesystem::is_directory(boost::filesystem::path(filename))) {
                 return "File is actually a directory: " + filename;
             }
             return std::string();
