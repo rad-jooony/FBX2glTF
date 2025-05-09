@@ -62,7 +62,6 @@
 #include <utility>
 #include <vector>
 
-
 // Verbatim copy from CLI/Version.hpp:
 
 
@@ -1156,18 +1155,40 @@ namespace detail {
 
 /// Check for an existing file (returns error message if check fails)
 struct ExistingFileValidator : public Validator {
+  ExistingFileValidator() {
+    tname = "FILE";
+    func = [](const std::string& filename) {
+      struct _stat64 buffer;
+      bool exist = _stat64(filename.c_str(), &buffer) == 0;
+      bool is_dir = (buffer.st_mode & S_IFDIR) != 0;
+      if (!exist) {
+        return "File does not exist: " + filename;
+      } else if (is_dir) {
+        return "File is actually a directory: " + filename;
+      }
+      return std::string();
+    };
+  }
+};
+
+/*
+struct ExistingFileValidator : public Validator {
     ExistingFileValidator() {
         tname = "FILE";
         func = [](const std::string &filename) {
-            if (!boost::filesystem::exists(filename)) {
+            struct stat buffer;
+            bool exist = stat(filename.c_str(), &buffer) == 0;
+            bool is_dir = (buffer.st_mode & S_IFDIR) != 0;
+            if(!exist) {
                 return "File does not exist: " + filename;
-            } else if (boost::filesystem::is_directory(boost::filesystem::path(filename))) {
+            } else if(is_dir) {
                 return "File is actually a directory: " + filename;
             }
             return std::string();
         };
     }
 };
+*/
 
 /// Check for an existing directory (returns error message if check fails)
 struct ExistingDirectoryValidator : public Validator {
